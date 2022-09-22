@@ -1,20 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { AppContext, AppContextProvider } from './Context/AppContext'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Home from './screens/Home';
+import ParkingSlot from './screens/ParkingSlot';
+import ParkingSlots from './screens/ParkingSlopts';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  return (
+    <AppContextProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Home'>
+          <Stack.Screen
+            name="Home"
+            component={Home}
+            options={{ headerShown: false }} />
+          <Stack.Screen
+            name="Parking Slot"
+            component={ParkingSlots}
+            />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppContextProvider>
+  )
+}
