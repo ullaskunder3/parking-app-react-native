@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './screens/Home';
 import ParkingSlot from './screens/ParkingSlot';
 import ParkingSlots from './screens/ParkingSlopts';
+import PayScreen from './screens/PayScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,10 @@ export default function App() {
           <Stack.Screen
             name="Parking Slot"
             component={ParkingSlots}
+            />
+          <Stack.Screen
+            name="PayScreen"
+            component={PayScreen}
             />
         </Stack.Navigator>
       </NavigationContainer>

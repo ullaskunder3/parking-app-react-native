@@ -1,29 +1,24 @@
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Text, Image, StyleSheet, FlatList, View, Dimensions, TextInput, TouchableOpacity, TouchableHighlight } from 'react-native';
-const winWidth = Dimensions.get('window').width
-const winHeight = Dimensions.get('window').height
+import { useState } from 'react';
+import { Text, StyleSheet, FlatList, View, TextInput, TouchableOpacity, TouchableHighlight, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-const carIcon = require('../assets/caricon.jpg')
 import { BottomSheet } from 'react-native-btr';
 import { tostMessage } from '../api/toastMessage';
 
-function pickRandomFrom(min: number, max: number) { // min and max included 
+function pickRandomFrom(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-const MAX_ROW = 6
-export default function ParkingSlots({ route }) {
+export default function ParkingSlots({ route, navigation }) {
     const { slots } = route.params;
-    let newSlots = [...slots];
 
     const [visible, setVisible] = useState(false);
-    const toggleBottomSheet = () => {
-        setVisible(!visible);
-    };
+    const toggleBottomSheet = () => setVisible(!visible);
+
     const [registeredName, setRegisteredName] = useState<string>('')
     const [inputHours, setInputHours] = useState<string>('')
     const [randomSlot, setRandomSlot] = useState<string[]>([])
+    const [copySlot, setCopySlot] = useState<string[]>([...slots])
 
     const inputTextChangeHandler = (e: string) => {
         setRegisteredName(e);
@@ -35,92 +30,61 @@ export default function ParkingSlots({ route }) {
             setInputHours('')
         }
     };
-    const getRandomSlot = () => {
-        const randomIdx = pickRandomFrom(1, (slots.length - 1))
-        const randomID = newSlots[randomIdx];
-        return { randomID }
-    }
+
     const onSubmitHandler = () => {
 
-        let { randomID } = getRandomSlot();
+        const randomIdx = pickRandomFrom(0, (copySlot.length - 1))
+        const randomID = copySlot[randomIdx];
 
         let legthOfRegisterName = registeredName.trim().length !== 0;
         let lengthOfHours = inputHours.trim().length !== 0;
         let inputCredentials = (legthOfRegisterName && lengthOfHours)
 
-        console.log('randomSlot.length < slots.length ', randomSlot.length, slots.length);
 
-        // if (inputCredentials) {
-        //     if(!(randomSlot.length < MAX_LENGTH)){
-        //         console.log('!randomSlot.length > slots.length', !(randomSlot.length > slots.length));
-                
-        //         console.log("compare: < 1;",randomSlot);
-        //         console.log("compare: < 1;",slots);
- 
-        //         if(!randomSlot.includes(randomID) && (randomSlot.length < slots.length)){
-        //             console.log('did run... 1');
-                    
-        //             setRandomSlot(current => [...current, ...[randomID]])
-        //         }else{
-        //             console.log('!randomSlot.length > slots.length', !(randomSlot.length > slots.length));
-        //             console.log('did run... 2');
-        //             var idx = slots.indexOf(randomID);
-        //             // if(idx === -1)return;
-        //             for (idx += 1; idx< slots.length; ++idx) {      
-        //                 if(slots[idx] !== -1)setRandomSlot(current => [...current, ...[randomSlot[randomSlot.length - 1]]])           
-        //             }
-        //         }
-        //     }else{
-        //         console.log('!randomSlot.length > slots.length', !(randomSlot.length > slots.length));
-        //         console.log("compare: e 3;",randomSlot);
-        //         console.log("compare: e 3;",slots);
-        //         // console.log(slots.filter(elm=>randomSlot.includes(elm)));
-        //         // console.log(slots.filter(value => !randomSlot.includes(value)));
-        //         // const lastData = slots.filter(value => !randomSlot.includes(value))
-        //         // setRandomSlot(current => [...current, ...lastData])
-        //         tostMessage('Plot is full')
-        //     }
-        // } else {
-        //     tostMessage('Input should not be empty')
-        // }
         if (inputCredentials) {
-            const idx = newSlots.indexOf(randomID);
-            if(!randomSlot.includes(randomID)){
-                console.log('roandPlot 2', newSlots);
-                console.log('did run... 1');                
-                setRandomSlot(current => [...current, ...[randomID]])
-                console.log('did run... 2');                
-                if(idx > -1){
-                    newSlots.splice(idx, 1);
-                    console.log('roandPlot 3', newSlots);
-
+            if (randomSlot.length < slots.length) {
+                if (!randomSlot.includes(randomID)) {
+                    // console.log('will push', randomID, !randomSlot.includes(randomID));
+                    setRandomSlot(current => [...current, ...[randomID]])
+                    setCopySlot(copySlot.filter((o, idx) => randomIdx !== idx))
+                } else {
+                    tostMessage('Plot is full')
+                    console.log("rejected", randomID);
                 }
+            } else {
+                // console.log(slots.filter(elm => randomSlot.includes(elm)));
+                // console.log(slots.filter(value => !randomSlot.includes(value)));
+                const lastData = slots.filter(value => !randomSlot.includes(value))
+                setRandomSlot(current => [...current, ...lastData])
+
+                tostMessage('Plot is full')
             }
         } else {
             tostMessage('Input should not be empty')
         }
-
-        console.log('roandPlot', newSlots);
-        // console.log('slot', slots);
-
-        // toggleBottomSheet()
+        toggleBottomSheet()
     };
+    const onPressPayScreen = (parkingLotID)=>{
+
+        navigation.navigate('PayScreen',{lotID: parkingLotID, inputHours, registeredName})
+    }
     return (
         <View style={styles.container}>
             <FlatList
                 data={slots}
                 style={styles.flexListStyle}
                 numColumns={2}
-                renderItem={({ item, index }) => {
-                    // console.log(item, randomSlot[index]);
+                renderItem={({ item }) => {
                     return (
-                        <View style={[styles.flexItemChild, randomSlot.includes(item) ? { backgroundColor: 'green' } : null]}>
-                            <Text>{item}</Text>
+                        <View style={[styles.flexItemChild, randomSlot.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
+                            <Text style={{ color: randomSlot.includes(item) ? 'white' : 'black' }}>{item}</Text>
                             {
+                                // Click to go to paymentScreen 
                                 <Ionicons
+                                    onPress={randomSlot.includes(item)?()=>onPressPayScreen(item):()=>(Alert.alert("Register First"))}
                                     name="ios-car-sport-outline"
                                     size={24}
-                                    color={'black'} />
+                                    color={randomSlot.includes(item) ? 'white' : 'black'} />
                             }
                         </View>
                     )
@@ -152,7 +116,6 @@ export default function ParkingSlots({ route }) {
 
                             <TextInput
                                 style={styles.inputHoursComponent}
-                                // onChangeText={inputHoursChangeHandler}
                                 onChangeText={(num) => inputHoursChangeHandler(num)}
                                 keyboardType={'numeric'}
                                 selectionColor={"#0c68be"}
@@ -181,7 +144,7 @@ export default function ParkingSlots({ route }) {
                     </View>
                 </View>
             </BottomSheet>
-            {/* <StatusBar style="auto" hidden /> */}
+            <StatusBar style="auto" hidden />
         </View>
     );
 }

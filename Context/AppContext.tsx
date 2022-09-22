@@ -5,8 +5,6 @@ const AppContext = createContext<any|null>(null);
 
 const AppContextProvider = ({children}:any)=>{
     const [appData, setAppData] = useState([])
-    const [theme, setTheme] = useState('');
-    
     return(
         <AppContext.Provider value={{appData, setAppData}}>
             {children}
