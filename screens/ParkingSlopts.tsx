@@ -104,12 +104,7 @@ export default function ParkingSlots({ route, navigation }) {
                 onBackdropPress={toggleBottomSheet}>
                 <View style={styles.bottomSheetStyle}>
                     <View>
-                        <Text
-                            style={{
-                                textAlign: 'center',
-                                paddingBottom: 50,
-                                fontSize: 20,
-                            }}>
+                        <Text style={styles.newRegText}>
                             New registration
                         </Text>
                         <View style={styles.inputComponentContainer}>
@@ -172,6 +167,11 @@ const styles = StyleSheet.create({
     },
     detailBtn: {
         marginHorizontal: 35,
+    },
+    newRegText:{
+        textAlign: 'center',
+        paddingBottom: 50,
+        fontSize: 20,
     },
     touchableOpacityStyle: {
         backgroundColor: 'white',

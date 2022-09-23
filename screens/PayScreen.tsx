@@ -2,8 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { Text, StyleSheet, Image, View, Button, TouchableOpacity, TouchableHighlight, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
 
-const carIcon = require('../assets/caricon.jpg')
-
 export default function PayScreen({ route }) {
     const { lotID, registeredName, inputHours } = route.params;    
     const payAble = inputHours*10/2
