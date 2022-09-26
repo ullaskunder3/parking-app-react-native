@@ -7,7 +7,7 @@ import { tostMessage } from '../api/toastMessage';
 import { AppContext } from '../Context/AppContext';
 
 export default function ParkingSlots({ navigation, route }) {
-    const { parkingSlots, setParkingSlots, parkingSize } = useContext(AppContext)
+    const { parkingSlots, setParkingSlots, parkingSize, setParkingSize } = useContext(AppContext)
 
     const [visible, setVisible] = useState(false);
     const toggleBottomSheet = () => setVisible(!visible);
@@ -27,11 +27,11 @@ export default function ParkingSlots({ navigation, route }) {
 
     useEffect(() => {
         setArrayOfSlots(parkingSize)
-
+        setParkingSize('')
         return () => {
             console.log('unmount');
         }
-    }, [parkingSize, route.params?.lotID])
+    }, [route.params?.lotID, parkingSize, registeredName, inputHours])
 
     const inputTextChangeHandler = (e: string) => {
         setRegisteredName(e);
