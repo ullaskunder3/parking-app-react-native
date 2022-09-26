@@ -6,12 +6,11 @@ import { BottomSheet } from 'react-native-btr';
 import { tostMessage } from '../api/toastMessage';
 import { AppContext } from '../Context/AppContext';
 
-export default function ParkingSlots({ navigation }) {
+export default function ParkingSlots({ navigation, route }) {
+    const { parkingSlots, setParkingSlots, parkingSize } = useContext(AppContext)
 
     const [visible, setVisible] = useState(false);
     const toggleBottomSheet = () => setVisible(!visible);
-
-    const { parkingSlots, setParkingSlots, parkingSize } = useContext(AppContext)
 
     const [registeredName, setRegisteredName] = useState<string>('')
     const [inputHours, setInputHours] = useState<string>('')
@@ -32,8 +31,7 @@ export default function ParkingSlots({ navigation }) {
         return () => {
             console.log('unmount');
         }
-    }, [parkingSize])
-
+    }, [parkingSize, route.params?.lotID])
 
     const inputTextChangeHandler = (e: string) => {
         setRegisteredName(e);
@@ -54,8 +52,7 @@ export default function ParkingSlots({ navigation }) {
         let inputCredentials = (legthOfRegisterName && lengthOfHours)
 
         if (inputCredentials) {
-            console.log("rabdimID", randomProp, "the obj", parkingSlots);
-
+            
             if (parkingSlots.hasOwnProperty(randomProp)) {
                 parkingSlots[randomProp].isAllocated = true
             }
@@ -68,6 +65,13 @@ export default function ParkingSlots({ navigation }) {
         console.log("rabdimID AFTER", randomProp, "the obj", parkingSlots);
         toggleBottomSheet()
     };
+    // deallocation of slots
+    if (route?.params?.lotID) {
+        const { lotID } = route.params
+        if (parkingSlots.hasOwnProperty(lotID)) {
+            parkingSlots[lotID].isAllocated = false
+        }
+    }
     const onPressPayScreen = (parkingLotID) => {
 
         navigation.navigate('PayScreen', { lotID: parkingLotID, inputHours, registeredName })

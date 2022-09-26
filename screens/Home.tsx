@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, Dimensions } from 'react-native';
 import { tostMessage } from '../api/toastMessage';
 import { AppContext } from '../Context/AppContext';

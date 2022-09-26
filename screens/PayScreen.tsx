@@ -1,10 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
 import { Text, StyleSheet, Image, View, Button, TouchableOpacity, TouchableHighlight, Alert, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; 
+import { useEffect } from 'react';
+import postPaymentApi from '../api/fetchData';
 
-export default function PayScreen({ route }) {
+export default function PayScreen({ route, navigation }) {
     const { lotID, registeredName, inputHours } = route.params;    
     const payAble = inputHours*10/2
+    const payAbleInString = String(payAble);
+
+    const onPayhandler = () => {
+        postPaymentApi(registeredName, payAbleInString).then((res)=>{
+            Alert.alert("Success", `Payment successfull ${res.description}`)
+            navigation.navigate('Parking Slot', {lotID});
+        }).catch((err)=>{
+            console.log(err);
+        })
+    }
+    
     
     return (
         <View style={styles.container}>
@@ -19,7 +32,7 @@ export default function PayScreen({ route }) {
 
                 <TouchableHighlight
                     style={styles.payBtn}
-                    onPress={() => Alert.alert('Thank you')}>
+                    onPress={onPayhandler}>
                     <Text style={styles.payBtnTxt}>Pay</Text>
                 </TouchableHighlight>
             </View>
