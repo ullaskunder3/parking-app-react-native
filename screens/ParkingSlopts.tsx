@@ -6,43 +6,39 @@ import { BottomSheet } from 'react-native-btr';
 import { tostMessage } from '../api/toastMessage';
 import { AppContext } from '../Context/AppContext';
 
-function pickRandomFrom(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1) + min)
-}
-
 export default function ParkingSlots({ navigation }) {
 
     const [visible, setVisible] = useState(false);
     const toggleBottomSheet = () => setVisible(!visible);
 
-    const {parkingSlots, setParkingSlots, parkingSize} = useContext(AppContext)
+    const { parkingSlots, setParkingSlots, parkingSize } = useContext(AppContext)
 
     const [registeredName, setRegisteredName] = useState<string>('')
     const [inputHours, setInputHours] = useState<string>('')
-    const [booked, setBooked] = useState<string[]>([])
-    const [copySlot, setCopySlot] = useState<string[]>([...parkingSlots])
 
-    async function setArrayOfSlots(params: number) {
+    const keys = Object.keys(parkingSlots);
+    const randomProp = keys[Math.floor(Math.random() * keys.length)];
+
+    function setArrayOfSlots(params: number) {
         for (let i = 0; i < params; i++) {
-          let r: any = Math.floor(Math.random() * 100) + 1;
-          setParkingSlots(current => [...current, ...[`S${r}`]])
+            let r: any = Math.floor(Math.random() * 100) + 1;
+            setParkingSlots(prevState => ({ ...prevState, ...{ [`S${r}`]: { isAllocated: false } } }))
         }
     }
 
     useEffect(() => {
-        console.log("the size,...",parkingSize);
-      setArrayOfSlots(parkingSize)
-    
-      return () => {
-        console.log('unmount');
-        
-      }
-    }, [])
-    
+        setArrayOfSlots(parkingSize)
+
+        return () => {
+            console.log('unmount');
+        }
+    }, [parkingSize])
+
 
     const inputTextChangeHandler = (e: string) => {
         setRegisteredName(e);
     }
+
     const inputHoursChangeHandler = (e: any) => {
         if (/^\d+$/.test(e)) {
             setInputHours(e)
@@ -50,60 +46,51 @@ export default function ParkingSlots({ navigation }) {
             setInputHours('')
         }
     };
-    console.log("the siz", parkingSlots);
-    
 
     const onSubmitHandler = () => {
-
-        const randomIdx = pickRandomFrom(0, (copySlot.length - 1))
-        const randomID = copySlot[randomIdx];
 
         let legthOfRegisterName = registeredName.trim().length !== 0;
         let lengthOfHours = inputHours.trim().length !== 0;
         let inputCredentials = (legthOfRegisterName && lengthOfHours)
 
-
         if (inputCredentials) {
-            if (booked.length < parkingSlots.length) {
-                if (!booked.includes(randomID)) {
-                    setBooked(current => [...current, ...[randomID]])
-                    setCopySlot(copySlot.filter((o, idx) => randomIdx !== idx))
-                } else {
-                    tostMessage('Plot is full')
-                    console.log("rejected", randomID);
-                }
-            } else {
-                const lastData = parkingSlots.filter(value => !booked.includes(value))
-                setBooked(current => [...current, ...lastData])
+            console.log("rabdimID", randomProp, "the obj", parkingSlots);
 
-                tostMessage('Plot is full')
+            if (parkingSlots.hasOwnProperty(randomProp)) {
+                parkingSlots[randomProp].isAllocated = true
             }
+            const allAllocated = Object.values(parkingSlots).every((prop: any) => prop.isAllocated)
+            if (allAllocated) { tostMessage('Plot is full') }
+
         } else {
             tostMessage('Input should not be empty')
         }
+        console.log("rabdimID AFTER", randomProp, "the obj", parkingSlots);
         toggleBottomSheet()
     };
-    const onPressPayScreen = (parkingLotID)=>{
+    const onPressPayScreen = (parkingLotID) => {
 
-        navigation.navigate('PayScreen',{lotID: parkingLotID, inputHours, registeredName})
+        navigation.navigate('PayScreen', { lotID: parkingLotID, inputHours, registeredName })
     }
     return (
         <View style={styles.container}>
             <FlatList
-                data={parkingSlots}
+                data={Object.keys(parkingSlots)}
                 style={styles.flexListStyle}
                 numColumns={2}
                 renderItem={({ item }) => {
                     return (
-                        <View testID='parking-drawing-space-<space-number>' style={[styles.flexItemChild, booked.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
-                            <Text testID='parking-drawing-spacenumber-<space_number>' style={{ color: booked.includes(item) ? 'white' : 'black' }}>{item}</Text>
+                        <View testID='parking-drawing-space-<space-number>' style={[styles.flexItemChild, parkingSlots[item].isAllocated ? { backgroundColor: '#3ae03a' } : null]}>
+                            <Text testID='parking-drawing-spacenumber-<space_number>' style={{ color: parkingSlots[item].isAllocated ? 'white' : 'black' }}>{item}</Text>
                             {
                                 // Click to go to paymentScreen 
                                 <Ionicons
-                                    onPress={booked.includes(item)?()=>onPressPayScreen(item):()=>(Alert.alert("Register First"))}
+                                    onPress={parkingSlots[item].isAllocated
+                                        ? () => onPressPayScreen(item)
+                                        : () => (Alert.alert("Register First"))}
                                     name="ios-car-sport-outline"
                                     size={24}
-                                    color={booked.includes(item) ? 'white' : 'black'} />
+                                    color={parkingSlots[item].isAllocated ? 'white' : 'black'} />
                             }
                         </View>
                     )
@@ -140,7 +127,7 @@ export default function ParkingSlots({ navigation }) {
 
                             <View style={styles.inputComponent}>
                                 <TextInput
-                                    testID='parking-drawingregistration-input' 
+                                    testID='parking-drawingregistration-input'
                                     style={styles.input}
                                     onChangeText={inputTextChangeHandler}
                                     value={registeredName}
@@ -189,7 +176,7 @@ const styles = StyleSheet.create({
     detailBtn: {
         marginHorizontal: 35,
     },
-    newRegText:{
+    newRegText: {
         textAlign: 'center',
         paddingBottom: 50,
         fontSize: 20,
