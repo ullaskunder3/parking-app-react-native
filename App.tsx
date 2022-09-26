@@ -1,4 +1,4 @@
-import { AppContext, AppContextProvider } from './Context/AppContext'
+import { AppContextProvider } from './Context/AppContext'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from './screens/Home';

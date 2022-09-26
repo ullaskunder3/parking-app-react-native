@@ -76,8 +76,8 @@ export default function ParkingSlots({ route, navigation }) {
                 numColumns={2}
                 renderItem={({ item }) => {
                     return (
-                        <View style={[styles.flexItemChild, randomSlot.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
-                            <Text style={{ color: randomSlot.includes(item) ? 'white' : 'black' }}>{item}</Text>
+                        <View testID='parking-drawing-space-<space-number>' style={[styles.flexItemChild, randomSlot.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
+                            <Text testID='parking-drawing-spacenumber-<space_number>' style={{ color: randomSlot.includes(item) ? 'white' : 'black' }}>{item}</Text>
                             {
                                 // Click to go to paymentScreen 
                                 <Ionicons
@@ -121,6 +121,7 @@ export default function ParkingSlots({ route, navigation }) {
 
                             <View style={styles.inputComponent}>
                                 <TextInput
+                                    testID='parking-drawingregistration-input' 
                                     style={styles.input}
                                     onChangeText={inputTextChangeHandler}
                                     value={registeredName}
@@ -130,6 +131,7 @@ export default function ParkingSlots({ route, navigation }) {
                                     placeholderTextColor={'#f7f7f7'} />
 
                                 <TouchableHighlight
+                                    testID='parking-drawing-addcarbutton'
                                     style={styles.searchBtn}
                                     onPress={onSubmitHandler}>
                                     <Text style={styles.searchBtnTxt}>Submit</Text>

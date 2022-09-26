@@ -1,27 +1,34 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, Dimensions } from 'react-native';
+import { tostMessage } from '../api/toastMessage';
 const winWidth = Dimensions.get('window').width
 const winHeight = Dimensions.get('window').height
 const parkingIcon = require('../assets/clipart651598.png')
-export default function Home({navigation}) {
+export default function Home({ navigation }) {
   const [parkingSize, setParkingSize] = useState<number>()
 
   const changeHandler = (e: string) => {
-    setParkingSize(e)
+    if (/^\d+$/.test(e)) {
+      setParkingSize(e)
+    } else {
+      setParkingSize('')
+    }
   }
-  const submitHandler = ()=>{
+  const submitHandler = () => {
     const input = String(parkingSize);
-    
+
     var slots = [];
     while (slots.length < parkingSize) {
       var r: any = Math.floor(Math.random() * 100) + 1;
       if (slots.indexOf(r) === -1) slots.push(`S${r}`);
     }
-    
-    if(input.length != 0){
+
+    if (input.length != 0) {
       console.log('runHOME', slots);
-      navigation.navigate('Parking Slot', {slots})
+      navigation.navigate('Parking Slot', { slots })
+    }else{
+      tostMessage('Input must not be empty');
     }
   }
 
@@ -34,6 +41,7 @@ export default function Home({navigation}) {
         </View>
         <View style={styles.searchCompnent}>
           <TextInput
+            testID='Parking-create-text-input'
             style={styles.input}
             onChangeText={changeHandler}
             value={parkingSize}
@@ -43,8 +51,9 @@ export default function Home({navigation}) {
             keyboardType={'numeric'} />
 
           <TouchableHighlight
+            testID='Parking-create-submitbutton'
             style={styles.searchBtn}
-          onPress={submitHandler}>
+            onPress={submitHandler}>
             <Text style={styles.searchBtnTxt}>Submit</Text>
           </TouchableHighlight>
         </View>
@@ -65,13 +74,13 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     backgroundColor: 'black'
   },
-  containerTopView:{
+  containerTopView: {
     width: winWidth,
     paddingVertical: 20,
     marginTop: 50,
     justifyContent: 'space-around'
   },
-  textContainer:{
+  textContainer: {
     marginBottom: 50,
     paddingHorizontal: 20
   },
@@ -80,7 +89,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 70,
   },
-  descDummyText:{
+  descDummyText: {
     color: '#afafaf'
   },
   containerBottomView: {
