@@ -1,12 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableHighlight, Image, Dimensions } from 'react-native';
 import { tostMessage } from '../api/toastMessage';
+import { AppContext } from '../Context/AppContext';
 const winWidth = Dimensions.get('window').width
-const winHeight = Dimensions.get('window').height
 const parkingIcon = require('../assets/clipart651598.png')
+
 export default function Home({ navigation }) {
-  const [parkingSize, setParkingSize] = useState<number>()
+
+  const {parkingSize, setParkingSize} = useContext(AppContext)
 
   const changeHandler = (e: string) => {
     if (/^\d+$/.test(e)) {
@@ -15,18 +17,13 @@ export default function Home({ navigation }) {
       setParkingSize('')
     }
   }
-  const submitHandler = () => {
-    const input = String(parkingSize);
 
-    var slots = [];
-    while (slots.length < parkingSize) {
-      var r: any = Math.floor(Math.random() * 100) + 1;
-      if (slots.indexOf(r) === -1) slots.push(`S${r}`);
-    }
+  const submitHandler = async () => {
+    const input = String(parkingSize);
+    setParkingSize(parkingSize)
 
     if (input.length != 0) {
-      console.log('runHOME', slots);
-      navigation.navigate('Parking Slot', { slots })
+      navigation.navigate('Parking Slot')
     }else{
       tostMessage('Input must not be empty');
     }

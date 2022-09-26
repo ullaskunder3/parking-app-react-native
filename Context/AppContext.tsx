@@ -1,15 +1,16 @@
-import React, { useState, createContext} from "react";
-import { Appearance } from "react-native";
+import React, { useState, createContext } from "react";
 
-const AppContext = createContext<any|null>(null);
+const AppContext = createContext<any | null>(null);
 
-const AppContextProvider = ({children}:any)=>{
-    const [appData, setAppData] = useState([])
-    return(
-        <AppContext.Provider value={{appData, setAppData}}>
+const AppContextProvider = ({ children }: any) => {
+    const [parkingSlots, setParkingSlots] = useState<any[]>([])
+    const [parkingSize, setParkingSize] = useState<number>(0)
+
+    return (
+        <AppContext.Provider value={{ parkingSize, setParkingSize, parkingSlots, setParkingSlots }}>
             {children}
         </AppContext.Provider>
     )
 };
 
-export {AppContext, AppContextProvider}
+export { AppContext, AppContextProvider }

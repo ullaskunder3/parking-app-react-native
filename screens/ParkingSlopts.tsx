@@ -1,24 +1,44 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Text, StyleSheet, FlatList, View, TextInput, TouchableOpacity, TouchableHighlight, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomSheet } from 'react-native-btr';
 import { tostMessage } from '../api/toastMessage';
+import { AppContext } from '../Context/AppContext';
 
 function pickRandomFrom(min: number, max: number) {
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
-export default function ParkingSlots({ route, navigation }) {
-    const { slots } = route.params;
+export default function ParkingSlots({ navigation }) {
 
     const [visible, setVisible] = useState(false);
     const toggleBottomSheet = () => setVisible(!visible);
 
+    const {parkingSlots, setParkingSlots, parkingSize} = useContext(AppContext)
+
     const [registeredName, setRegisteredName] = useState<string>('')
     const [inputHours, setInputHours] = useState<string>('')
-    const [randomSlot, setRandomSlot] = useState<string[]>([])
-    const [copySlot, setCopySlot] = useState<string[]>([...slots])
+    const [booked, setBooked] = useState<string[]>([])
+    const [copySlot, setCopySlot] = useState<string[]>([...parkingSlots])
+
+    async function setArrayOfSlots(params: number) {
+        for (let i = 0; i < params; i++) {
+          let r: any = Math.floor(Math.random() * 100) + 1;
+          setParkingSlots(current => [...current, ...[`S${r}`]])
+        }
+    }
+
+    useEffect(() => {
+        console.log("the size,...",parkingSize);
+      setArrayOfSlots(parkingSize)
+    
+      return () => {
+        console.log('unmount');
+        
+      }
+    }, [])
+    
 
     const inputTextChangeHandler = (e: string) => {
         setRegisteredName(e);
@@ -30,6 +50,8 @@ export default function ParkingSlots({ route, navigation }) {
             setInputHours('')
         }
     };
+    console.log("the siz", parkingSlots);
+    
 
     const onSubmitHandler = () => {
 
@@ -42,20 +64,17 @@ export default function ParkingSlots({ route, navigation }) {
 
 
         if (inputCredentials) {
-            if (randomSlot.length < slots.length) {
-                if (!randomSlot.includes(randomID)) {
-                    // console.log('will push', randomID, !randomSlot.includes(randomID));
-                    setRandomSlot(current => [...current, ...[randomID]])
+            if (booked.length < parkingSlots.length) {
+                if (!booked.includes(randomID)) {
+                    setBooked(current => [...current, ...[randomID]])
                     setCopySlot(copySlot.filter((o, idx) => randomIdx !== idx))
                 } else {
                     tostMessage('Plot is full')
                     console.log("rejected", randomID);
                 }
             } else {
-                // console.log(slots.filter(elm => randomSlot.includes(elm)));
-                // console.log(slots.filter(value => !randomSlot.includes(value)));
-                const lastData = slots.filter(value => !randomSlot.includes(value))
-                setRandomSlot(current => [...current, ...lastData])
+                const lastData = parkingSlots.filter(value => !booked.includes(value))
+                setBooked(current => [...current, ...lastData])
 
                 tostMessage('Plot is full')
             }
@@ -71,20 +90,20 @@ export default function ParkingSlots({ route, navigation }) {
     return (
         <View style={styles.container}>
             <FlatList
-                data={slots}
+                data={parkingSlots}
                 style={styles.flexListStyle}
                 numColumns={2}
                 renderItem={({ item }) => {
                     return (
-                        <View testID='parking-drawing-space-<space-number>' style={[styles.flexItemChild, randomSlot.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
-                            <Text testID='parking-drawing-spacenumber-<space_number>' style={{ color: randomSlot.includes(item) ? 'white' : 'black' }}>{item}</Text>
+                        <View testID='parking-drawing-space-<space-number>' style={[styles.flexItemChild, booked.includes(item) ? { backgroundColor: '#3ae03a' } : null]}>
+                            <Text testID='parking-drawing-spacenumber-<space_number>' style={{ color: booked.includes(item) ? 'white' : 'black' }}>{item}</Text>
                             {
                                 // Click to go to paymentScreen 
                                 <Ionicons
-                                    onPress={randomSlot.includes(item)?()=>onPressPayScreen(item):()=>(Alert.alert("Register First"))}
+                                    onPress={booked.includes(item)?()=>onPressPayScreen(item):()=>(Alert.alert("Register First"))}
                                     name="ios-car-sport-outline"
                                     size={24}
-                                    color={randomSlot.includes(item) ? 'white' : 'black'} />
+                                    color={booked.includes(item) ? 'white' : 'black'} />
                             }
                         </View>
                     )
